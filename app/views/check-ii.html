@@ -1,0 +1,254 @@
+{% extends "layouts/main.html" %}
+
+{% block header %}
+{{ govukHeader({
+  homepageUrl: "icms-home-II",
+  serviceName: "Check if you need a certificate",
+  serviceUrl: "icms-home-II",
+  navigation: [
+  ]
+}) }}
+{% endblock %}
+
+{% block beforeContent %}
+  {{ govukBackLink({
+    text: "Back",
+    href: "javascript:window.history.back()"
+  }) }}
+{% endblock %}
+
+{% block content %}
+    {% from "govuk/components/select/macro.njk" import govukSelect %}
+
+    {{ govukSelect({
+      id: "destination-country",
+      name: "destination-country",
+      label: {
+        text: "Where are you sending the goods? ",
+        classes: "govuk-label--l"
+      },
+    
+      items: [
+        {
+          value: "choose",
+          text: "Choose country",
+          selected: true
+        },
+        {
+          value: "china",
+          text: "China"
+        },
+        {
+          value: "turkey",
+          text: "Turkey"
+        },
+        {
+          value: "uae",
+          text: "U.A.E"
+        },
+        {
+          value: "uganda",
+          text: "Uganda"
+        },
+        {
+          value: "ukraine",
+          text: "Ukraine"
+        },
+        {
+          value: "unitedkingdom",
+          text: "United Kingdom"
+        },
+        {
+          value: "unitedstates",
+          text: "United States"
+        },
+        {
+          value: "uruguay",
+          text: "Uruguay"
+        },
+        {
+          value: "uzbekistan",
+          text: "Uzbekistan"
+        },
+        {
+          value: "vietnam",
+          text: "Vietnam"
+        }
+      ]
+    }) }}
+
+    {{ govukSelect({
+      id: "certificate-type",
+      name: "certificate-type",
+      label: {
+        text: "Which export certificate do you need?",
+        classes: "govuk-label--m"
+      },
+      items: [
+        {
+          value: "choose",
+          text: "Choose certificate",
+          selected: true
+        },
+        {
+          value: "freesale",
+          text: "Certificate of Free Sale (CFS)"
+        },
+        {
+          value: "manufacture",
+          text: "Certificate of Manufacture (CoM)"
+        },
+        {
+          value: "practice",
+          text: "Certificate of Good Manufacturing Practice (GMPC)"
+        }
+      ]
+    }) }}
+    <details class="govuk-details" data-module="govuk-details">
+      <summary class="govuk-details__summary">
+        <span class="govuk-details__summary-text">
+          Help with certificate types
+        </span>
+      </summary>
+      <div class="govuk-details__text">
+        Read about the <a href="/paths-2">different types of export certificates</a> offered by the Department for Business and Trade (DBT).
+      </div>
+    </details>
+
+    <div id="goods-type-section" hidden>
+      <!-- Update the ID for the goods type select to 'goods-type' -->
+      {{ govukSelect({
+        id: "goods-type",
+        name: "goods-type",
+        label: {
+          text: "What is your goods type?",
+          classes: "govuk-label--m"
+        },
+        hint: {
+          text: "The type of goods you're exporting"
+        },
+        items: [
+          {
+            value: "choose-goods",
+            text: "Choose goods type",
+            selected: true
+          },
+          {
+            value: "biocides",
+            text: "Biocides"
+          },
+          {
+            value: "cosmetics",
+            text: "Cosmetics"
+          },
+          {
+            value: "food-drinks-or-supplements",
+            text: "Food, drinks or supplements"
+          },
+          {
+            value: "animal-goods",
+            text: "Goods that come into contact with animals"
+          },
+          {
+            value: "devices",
+            text: "Medical devices"
+          },
+          {
+            value: "medicines",
+            text: "Medicines"
+          },
+          {
+            value: "other",
+            text: "Other"
+          }
+        ]
+      }) }}
+    </div>
+
+    <div id="other-text" class="govuk-form-group" hidden>
+      <label class="govuk-label" for="address">
+        Give as much detail as possible about your goods
+      </label>
+      <form class="form" action="/path/of/next/page" method="post">
+        <fieldset class="govuk-fieldset">
+          <div class="govuk-form-group">
+            <div class="govuk-autocomplete">
+              <input class="govuk-input" id="address-line-1" name="address-line-1" type="text" autocomplete="off" aria-describedby="address-line-1-hint">
+              <ul class="govuk-list govuk-autocomplete__list" role="listbox" id="autocomplete-options"></ul>
+            </div>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+
+    {{ govukButton({
+      text: "Continue",
+      attributes: {
+        "data-action": "form-submit",
+        "data-submitting-text": "Submitting...",
+        "data-prevent-double-click": "true"
+      },
+      href: "#",
+      id: "continue-button"
+    }) }}
+
+    <script>
+      const certificateTypeSelect = document.getElementById("certificate-type");
+      const goodsTypeSection = document.getElementById("goods-type-section");
+      const goodsTypeSelect = document.getElementById("goods-type");
+      const continueButton = document.getElementById("continue-button");
+      const otherTextDiv = document.getElementById("other-text");
+
+      // Hide the goods type section by default
+      goodsTypeSection.hidden = true;
+
+      // Function to handle the change event of the certificate and goods type selects
+      function handleSelectChange() {
+        const selectedCertificateType = certificateTypeSelect.value;
+        const selectedGoodsType = goodsTypeSelect.value;
+
+        // Show/hide the goods type section based on the selected certificate type
+        goodsTypeSection.hidden = (selectedCertificateType !== "freesale");
+
+        // Show/hide the 'other-text' div based on the selected goods type
+        otherTextDiv.hidden = (selectedGoodsType !== "other");
+
+        // Update the continue button's href based on the selected certificate and goods types
+        if (selectedCertificateType === "freesale" && selectedGoodsType !== "choose-goods") {
+          // Update the href value based on the selected goods type
+          if (selectedGoodsType === "biocides") {
+            continueButton.href = "finished-biocides";
+          } else if (selectedGoodsType === "food-drinks-or-supplements") {
+            continueButton.href = "finished-food-drinks";
+          } else if (selectedGoodsType === "animal-goods") {
+            continueButton.href = "finished-animal-goods";
+          } else if (selectedGoodsType === "devices") {
+            continueButton.href = "finished-devices";
+          } else if (selectedGoodsType === "medicines") {
+            continueButton.href = "finished-medicines";
+          } else if (selectedGoodsType === "other") {
+            continueButton.href = "export-form-other";
+          } else {
+            continueButton.href = "#";
+          }
+        } else if (selectedCertificateType === "manufacture") {
+          continueButton.href = "finished-export-only-v2";
+        } else if (selectedCertificateType === "practice") {
+          continueButton.href = "finished-gmpc";
+        } else {
+          continueButton.href = "#";
+        }
+      }
+
+      // Call the handleSelectChange function when either the certificate type or goods type select changes
+      certificateTypeSelect.addEventListener("change", handleSelectChange);
+      goodsTypeSelect.addEventListener("change", handleSelectChange);
+
+      // Trigger the handleSelectChange function on page load
+      handleSelectChange();
+    </script>
+  </div>
+</div>
+{% endblock %}
+
+
